@@ -252,7 +252,7 @@
 
     function appendSpotRow(listEl, spot, dist){
       const visited = isVisited(spot.id);
-      const btnLabel = visited ? '訪問済み' : 'ここでチェックイン';
+      const btnLabel = visited ? '訪問済み' : 'チェックイン';
       const btnDisabled = visited ? 'disabled' : '';
       const distText = Number.isNaN(dist) ? '距離不明' : `約${dist}m`;
 
