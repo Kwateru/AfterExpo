@@ -85,15 +85,15 @@
     <section>
       <h2>スタンプ帳</h2>
       <div id="stampGrid" class="card">
-        <p class="hint">まだスタンプはありません。スポットで「チェックイン」→写真を1枚撮るとここに貯まります。</p>
+        <p class="hint">まだスタンプはありません。スポットでチェックインして写真を撮るとここに貯まります。</p>
       </div>
     </section>
 
     <p class="footer">データはこの端末内（localStorage）に保存されます。</p>
   </main>
 
-  <!-- カメラ起動用 -->
-  <input id="camera" type="file" accept="image/*;capture=camera" capture="environment" hidden />
+  <!-- フォルダ（ギャラリー）から選ぶ用：capture指定なし -->
+  <input id="camera" type="file" accept="image/*" hidden />
 
   <script>
   (function(){
@@ -109,7 +109,7 @@
     const SPOTS = [
       { id:'s01', name:'中之島 再展示ギャラリー', category:'exhibit', lat:34.63752, lng:135.06729, radius_m:120, hint:'入口の看板が撮りやすい' },
       { id:'s02', name:'各国グルメ キッチン',     category:'food', lat:34.63752, lng:135.06729, radius_m:120, hint:'料理のアップがおすすめ' },
-      { id:'s03', name:'万博メモリアルショップ',   category:'shop', lat:34.705678, lng:135.497890, radius_m:120, hint:'外観やレシートでもOK' },
+      { id:'s03', name:'万博メモリアルショップ',   category:'shop', lat:34.7429456, lng:135.5230246, radius_m:120, hint:'外観やレシートでもOK' },
     ];
 
     // ---- ストレージ ----
@@ -199,7 +199,7 @@
 
     function appendSpotRow(listEl, spot, dist){
       const visited = isVisited(spot.id);
-      const btnLabel = visited ? '訪問済み' : 'ここでチェックイン';
+      const btnLabel = visited ? '訪問済み' : 'チェックイン';
       const btnDisabled = visited ? 'disabled' : '';
       const distText = Number.isNaN(dist) ? '距離不明' : `約${dist}m`;
 
@@ -248,14 +248,14 @@
       `).join('');
     }
 
-    // ---- チェックイン（先にカメラ → その後 位置判定） ----
+    // ---- チェックイン（先にギャラリー選択 → その後 位置判定） ----
     async function checkIn(spot){
       try{
         if (isVisited(spot.id)) { alert('このスポットは訪問済みです。'); return; }
 
-        // ① 先にカメラを開く
+        // ① 先にギャラリーから選ぶ
         const input = /** @type {HTMLInputElement|null} */ (document.getElementById('camera'));
-        if (!input) { alert('カメラ要素が見つかりません'); return; }
+        if (!input) { alert('画像選択の要素が見つかりません'); return; }
         const photoDataUrl = await new Promise((resolve,reject)=>{
           input.value = '';
           input.onchange = async () => {
@@ -275,7 +275,7 @@
         const { latitude, longitude } = pos.coords;
         const dist = Math.round(distanceMeters(latitude, longitude, spot.lat, spot.lng));
         if(dist > spot.radius_m){
-          alert(`まだ遠いかも… 現在 ${dist}m ／ 必要 ${spot.radius_m}m 以内（写真は保存されません）`);
+          alert(`まだ遠いかも… 現在 ${dist}m ／ 必要 ${spot.radius_m}m 以内（選んだ写真は保存されません）`);
           return;
         }
 
@@ -299,7 +299,7 @@
 
       }catch(err){
         console.error('checkIn error', err);
-        // 写真ダイアログを閉じた等はここに来ます（無視でOK）
+        // 選択ダイアログを閉じた等はここに来ます（無視でOK）
       }
     }
 
